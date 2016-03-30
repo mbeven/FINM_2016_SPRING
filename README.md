@@ -1,5 +1,4 @@
 # FINM_2016_SPRING
-Coursework for 2016 spring quarter
 
 ## FINM 32400 - Computing for Finance 3
 
