@@ -1,7 +1,6 @@
 # FINM_2016_SPRING
 
-## [FINM 32400 - Computing for Finance
-3](https://github.com/mbeven/FINM_2016_SPRING/tree/master/FINM%2032400)
+## [FINM 32400 - Computing for Finance3] (https://github.com/mbeven/FINM_2016_SPRING/tree/master/FINM%2032400)
 
 ## FINM 33150 - Regression Analysis and Quantitative Trading Strategies
 
