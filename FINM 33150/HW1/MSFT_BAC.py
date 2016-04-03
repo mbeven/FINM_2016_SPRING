@@ -23,8 +23,8 @@ print('Script/file name: {}' .format(script))
 # grab data
 raw_data = Quandl.get(list(("YAHOO/MSFT","WIKI/BAC")),
     authtoken="v21snmSix9KyXBWc1RkF",
-    trim_start="1990-10-15",
-    trim_end="1990-11-09",
+    trim_start="2015-10-15",
+    trim_end="2015-11-09",
     returns="pandas")
 print(pd.DataFrame(raw_data.columns))
 
