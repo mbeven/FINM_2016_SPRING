@@ -223,7 +223,7 @@ Multiple R-squared:  0.1061,	Adjusted R-squared:  0.05647
 F-statistic: 2.137 on 1 and 18 DF,  p-value: 0.161
 \end{verbatim}
 
-Finally, we create log returns from the data subset and run a regression on that:
+then, we create log returns from the data subset and run a regression on that:
 
 \begin{verbatim}
 # create log returns data
@@ -249,6 +249,33 @@ Multiple R-squared:  0.002436,	Adjusted R-squared:  -0.05624
 F-statistic: 0.04151 on 1 and 17 DF,  p-value: 0.841
 \end{verbatim}
 
+Finally, plot:
+
+\begin{verbatim}
+# plot of regression of prices
+pdf('RegPrices.pdf')
+plot(df.renamed.close$BAC.Close,df.renamed.close$MSFT.Close,pch=20,ylim=c(45,60),
+     xlim=c(15,20),xlab='BAC.Close',ylab='MSFT.Close',
+     main='Regression of Microsoft Close Price Against Bank of America Close Price')
+abline(regress)
+dev.off()
+
+# plot of regression of returns
+pdf('RegRets.pdf')
+plot(df.logrets$BAC.Close,df.logrets$MSFT.Close,pch=20,xlab='BAC.Close',
+     ylab='MSFT.Close',ylim=c(-0.02,0.1),xlim=c(-0.02,0.1),
+     main='Regression of Microsoft Close Return Against Bank of America Close Return')
+abline(regress.logrets)
+dev.off()
+\end{verbatim}
+
+\includegraphics[scale=0.6]{RegPrices.pdf}\centering
+
+\raggedright
+
+\includegraphics[scale=0.6]{RegRets.pdf}\centering
+
+\raggedright
 
 %----------------------------------------------------------------------------------------
 

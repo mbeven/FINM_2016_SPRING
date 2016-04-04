@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014) (preloaded format=pdflatex 2015.6.14)  2 APR 2016 18:00
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014) (preloaded format=pdflatex 2015.6.14)  3 APR 2016 23:11
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1239,21 +1239,33 @@ File: t1cmtt.fd 1999/05/25 v2.5h Standard LaTeX font definitions
 
 
 {/usr/local/texlive/2014/texmf-var/fonts/map/pdftex/updmap/pdftex.map}] [2] [3]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 255.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 255.
 
-(./MSFT_BAC_R.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 255.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 255.
+<RegPrices.pdf, id=23, 722.7pt x 505.89pt>
+File: RegPrices.pdf Graphic file (type pdf)
+ <use RegPrices.pdf>
+Package pdftex.def Info: RegPrices.pdf used on input line 272.
+(pdftex.def)             Requested size: 433.62334pt x 303.53633pt.
+
+<RegRets.pdf, id=24, 722.7pt x 505.89pt>
+File: RegRets.pdf Graphic file (type pdf)
+ <use RegRets.pdf>
+Package pdftex.def Info: RegRets.pdf used on input line 276.
+(pdftex.def)             Requested size: 433.62334pt x 303.53633pt.
+ [4 <./RegPrices.pdf>] [5 <./RegRets.pdf>]
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 282.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 282.
+ (./MSFT_BAC_R.aux)
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 282.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 282.
 Package rerunfilecheck Info: File `MSFT_BAC_R.out' has not changed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 255.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 282.
  ) 
 Here is how much of TeX's memory you used:
- 22383 strings out of 493117
- 404134 string characters out of 6135433
+ 22395 strings out of 493117
+ 404304 string characters out of 6135433
  528098 words of memory out of 5000000
- 25420 multiletter control sequences out of 15000+600000
+ 25428 multiletter control sequences out of 15000+600000
  48352 words of font info for 57 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  64i,11n,60p,414b,463s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -1261,10 +1273,10 @@ Here is how much of TeX's memory you used:
 {/usr/local/texlive/2014/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/local/tex
 live/2014/texmf-dist/fonts/type1/adobe/utopia/putr8a.pfb></usr/local/texlive/20
 14/texmf-dist/fonts/type1/public/cm-super/sftt1095.pfb>
-Output written on MSFT_BAC_R.pdf (3 pages, 63075 bytes).
+Output written on MSFT_BAC_R.pdf (5 pages, 71985 bytes).
 PDF statistics:
- 35 PDF objects out of 1000 (max. 8388607)
- 27 compressed objects within 1 object stream
- 5 named destinations out of 1000 (max. 500000)
- 13 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 61 PDF objects out of 1000 (max. 8388607)
+ 47 compressed objects within 1 object stream
+ 7 named destinations out of 1000 (max. 500000)
+ 23 words of extra memory for PDF output out of 10000 (max. 10000000)
 

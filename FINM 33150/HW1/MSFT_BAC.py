@@ -6,12 +6,8 @@ import sys
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
-import scipy as sp
 from pandas.stats.api import ols
 import Quandl
-import functools
-import seaborn as sns
-import ggplot as gg
 
 script = sys.argv
 
@@ -48,3 +44,26 @@ log_rets = log_rets.ix[1:-1,:]
 # run an OLS regression of MSFT on BAC returns
 regress_log_rets = ols(y=log_rets["YAHOO.MSFT - Close"], x=log_rets["WIKI.BAC - Close"])
 print(regress_log_rets)
+
+# plot prices regression
+x = regress.x['x']
+y = regress.beta[0]*x+regress.beta[1]
+plt.figure(1)
+plt.plot(x,y)
+plt.scatter(x,regress.y)
+plt.ylabel('YAHOO.MSFT - Close')
+plt.xlabel('WIKI.BAC - Close')
+plt.title('Regression of Microsoft Close Price on Bank of America Close Price')
+
+# plot returns regression
+x = regress_log_rets.x['x']
+y = regress_log_rets.beta[0]*x+regress_log_rets.beta[1]
+plt.figure(2)
+plt.plot(x,y)
+plt.scatter(x,regress_log_rets.y)
+plt.ylabel('YAHOO.MSFT - Close')
+plt.xlabel('WIKI.BAC - Close')
+plt.title('Regression of Microsoft Close Return on Bank of America Close Return')
+
+
+
