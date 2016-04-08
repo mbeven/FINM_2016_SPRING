@@ -24,7 +24,7 @@ print('Script/file name: {}' .format(script))
 # set parameters
 M = 3 # return difference calculation time frame. 
 #M cannot exceed the number of trading days between 2013-12-02 and 2014-01-01
-g = 0.005 # entering threshold
+g = 0.02 # entering threshold
 j = 0 # exiting threshold
 
 # grab data
@@ -62,6 +62,9 @@ Nt.columns = ['Nt']
 for i in range(14,len(df)):
   Nt.ix[i] = np.median(df.ix[i-14:i,'XDDV'])
 df = pd.concat([df,Nt],axis=1)
+
+# capital - set K now that we have Nt
+K = np.max(2*Nt.Nt)
 
 # set up difference calculation of returns based on M
 # create log return columns and sum over M days.  assumes
@@ -105,12 +108,17 @@ for i in range (1,len(df)):
     df.Signal[i-1] = 0
 
 # make the trade
-K = pd.DataFrame(np.round(df.Signal*df.Nt/100,0),df.Nt*2/len(raw_data_close)))
-K.columns = ['K']
-Profit = pd.DataFrame(K.K*(df.YR-df.XR))
+Size = pd.DataFrame(np.round(df.Signal*df.Nt/100,0))
+Size.columns = ['Size']
+Profit = pd.DataFrame(Size.Size.shift(1)*(df.YR-df.XR))
+Profit.ix[0] = 0
 Profit.columns = ['Profit']
 Cum_Profit = pd.DataFrame(np.cumsum(Profit.Profit))
 Cum_Profit.columns = ['Cum_Profit']
+K = pd.DataFrame(np.round(K + Cum_Profit.Cum_Profit,0))
+K.columns = ['K']
+Cum_Return = pd.DataFrame(K.K/K.K[0]-1)
+Cum_Return.columns = ['Cum_Return']
 
 # set dataframe
-df = pd.concat([df,K,Profit,Cum_Profit],axis=1)
+df = pd.concat([df,Size,Profit,Cum_Profit,K,Cum_Return],axis=1)
