@@ -1,6 +1,7 @@
 Homework Descriptions
 
-Week 1:
+Week 1: Basics in R and Python - Quandl data sourcing, regression and
+interpolation
 
 Week 2:
 
