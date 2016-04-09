@@ -11,21 +11,21 @@ import sys
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
-from pandas.stats.api import ols
 import Quandl
 
 script = sys.argv
 
 print('Script/file name: {}' .format(script))
 
-# add memorization cache
+# add memoization cache
 #@functools.lru_cache(maxsize=20)
 
 # set parameters
-M = 3 # return difference calculation time frame. 
+M = 10 # return difference calculation time frame. 
 #M cannot exceed the number of trading days between 2013-12-02 and 2014-01-01
-g = 0.02 # entering threshold
-j = 0 # exiting threshold
+g = 0.01 # entering threshold
+j = 0.008 # exiting threshold
+s = 0.10 # stop loss
 
 # grab data
 raw_data = Quandl.get(list(('GOOG/NYSE_XSD','YAHOO/SMH')),
@@ -37,23 +37,18 @@ print(pd.DataFrame(raw_data.columns))
 
 # take a subset of columns of the close data and volume (volume needed for daily
 # dollar volume)
-columns = ['XP','XV','YP','YV']
 raw_data_close = pd.DataFrame(raw_data.ix[:,('GOOG.NYSE_XSD - Close',
                                 'GOOG.NYSE_XSD - Volume',
                                 'YAHOO.SMH - Close',
                                 'YAHOO.SMH - Volume')])
-raw_data_close.columns = columns
+raw_data_close.columns = ['XP','XV','YP','YV']
 
 # calculate daily dollar volumes
 XSD_DDV = pd.DataFrame(raw_data_close.loc[:,'XP']*raw_data_close.loc[:,'XV']
 , columns=['XDDV'])
 
-# join on daily dollar volumes
+# set dataframe - join on daily dollar volumes
 df = pd.concat([raw_data_close,XSD_DDV],axis=1)
-
-# can look through all the columns to see output
-print(df.head())
-print(df.tail())
 
 # create 15 day rolling median of data
 Nt = pd.DataFrame(np.zeros((len(df),1)))
@@ -68,7 +63,7 @@ K = np.max(2*Nt.Nt)
 
 # set up difference calculation of returns based on M
 # create log return columns and sum over M days.  assumes
-# returns are lognormally distributed
+# returns are normally distributed
 
 # log returns
 XR = pd.DataFrame(np.log(df['XP']) - np.log(df['XP'].shift(1)))
@@ -92,26 +87,53 @@ df = df[df.index >= '2014-01-01'] # drop unnecessary date range
 Signal = pd.DataFrame(np.zeros((len(df),1)))
 Signal = Signal.set_index(df.index)
 Signal.columns = ['Signal']
-df = pd.concat([df,Signal],axis=1)
 
 # beginning January 1 2014, start generating signals based on g/j
-df.Signal[df.DeltaM > g] = 1
-df.Signal[df.DeltaM < j] = -1
+Signal.Signal[df.DeltaM > g] = 1 # enter trade
+Signal.Signal[df.DeltaM < j] = -1 # exit trade
 for i in range(1,len(df)):
-  if df.Signal[i] == 0:
-    df.Signal[i] = df.Signal[i-1]
-df.Signal[df.Signal == -1] = 0
+  if Signal.Signal[i] == 0:
+    Signal.Signal[i] = Signal.Signal[i-1] # fill in where  Signal = 0 (will already be
+    # entered or exited from a trade)
+Signal.Signal[Signal.Signal == -1] = 0 # represent exiting trades with 0 instead of -1
 
-# account for end of month
+# account for exiting trades at the end of each month
 for i in range (1,len(df)):
   if ((df.index.day[i] <= 3) & (df.index.day[i]-df.index.day[i-1] != 1)):
-    df.Signal[i-1] = 0
+    Signal.Signal[i-1] = 0 
+
+# add empty columns for entry and exit points
+Entry = pd.DataFrame(np.zeros((len(df),1)))
+Entry = Entry.set_index(df.index)
+Entry.columns = ['Entry']
+Exit = pd.DataFrame(np.zeros((len(df),1)))
+Exit = Exit.set_index(df.index)
+Exit.columns = ['Exit']
+
+# create entry and exit points
+for i in range (0,len(df)):
+  if (i == 0) & (Signal.Signal[i] == 1):
+    Entry.Entry[i] = 1
+  elif (i == 0) & (Signal.Signal[i] == 0):
+    Entry.Entry[i] = 0
+    Exit.Exit[i] = 0
+  else:
+    if (Signal.Signal[i] == 1) & (Signal.Signal[i-1] == 0):
+      Entry.Entry[i] = 1
+    elif (Signal.Signal[i] == 0) & (Signal.Signal[i-1] == 1):
+      Exit.Exit[i] = 1
 
 # make the trade
-Size = pd.DataFrame(np.round(df.Signal*df.Nt/100,0))
+Size = pd.DataFrame(np.round(Signal.Signal*df.Nt/100,0)) # size of trade
 Size.columns = ['Size']
-Profit = pd.DataFrame(Size.Size.shift(1)*(df.YR-df.XR))
-Profit.ix[0] = 0
+GTC = pd.DataFrame(Entry.Entry*(np.abs(Size.Size*df.XP) +
+  np.abs(Size.Size*df.XP)),columns=['GTC']) # gross traded cash
+for i in range(1,len(df)):
+  if (GTC.GTC[i-1] != 0) & (Exit.Exit[i] != 1):
+    GTC.ix[i] = GTC.ix[i-1]
+GTC.columns = ['GTC']
+Profit = pd.DataFrame(Size.Size.shift(1)*(df.Delta)) # dollar profit(loss)
+Profit.ix[0] = 0 # can't calculate profit for the first day
 Profit.columns = ['Profit']
 Cum_Profit = pd.DataFrame(np.cumsum(Profit.Profit))
 Cum_Profit.columns = ['Cum_Profit']
@@ -121,4 +143,34 @@ Cum_Return = pd.DataFrame(K.K/K.K[0]-1)
 Cum_Return.columns = ['Cum_Return']
 
 # set dataframe
-df = pd.concat([df,Size,Profit,Cum_Profit,K,Cum_Return],axis=1)
+df = pd.concat([df.XP,df.XV,np.round(df.XDDV,0),df.YP,df.YV,np.round(df.Nt,0),np.round(df.XR,3),
+                np.round(df.YR,3),np.round(df.Delta,3),np.round(df.DeltaM,3),Signal,Entry,Exit,
+                Size,np.round(GTC,0),np.round(Profit,0),np.round(Cum_Profit,0),K,
+                Cum_Return],
+                axis=1)
+                
+# plots
+                
+# plot DeltaM with entry and exit points
+plt.figure(1)
+plt.title('Difference in Returns Over M Days')
+plt.ylabel('Return Difference')
+df.DeltaM.plot(color='black')
+Entry_Pts = pd.DataFrame(df.Entry*df.DeltaM)
+Entry_Pts = Entry_Pts[Entry_Pts != 0]
+Exit_Pts = pd.DataFrame(df.Exit*df.DeltaM)
+Exit_Pts = Exit_Pts[Exit_Pts != 0]
+plt.plot(Entry_Pts,'g.')
+plt.plot(Exit_Pts,'r.')
+
+# plot cumulative profit
+plt.figure(2)
+plt.title('Cumulative Profit')
+plt.ylabel('Dollar Profit')
+df.Cum_Profit.plot(color='black')
+Entry_Pts = pd.DataFrame(df.Entry*df.Cum_Profit)
+Entry_Pts = Entry_Pts[Entry_Pts != 0]
+Exit_Pts = pd.DataFrame(df.Exit*df.Cum_Profit)
+Exit_Pts = Exit_Pts[Exit_Pts != 0]
+plt.plot(Entry_Pts,'g.')
+plt.plot(Exit_Pts,'r.')
