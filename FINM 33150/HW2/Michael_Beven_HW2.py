@@ -96,12 +96,6 @@ def strat(M,g,j,s,X_code,Y_code,X_close,X_volume,Y_close,Y_volume):
   # beginning January 1 2014, start generating signals based on g/j
   Signal.Signal[df.DeltaM > g] = 1 # should be entering or maintaining trade
   Signal.Signal[df.DeltaM < j] = -1 # should be exiting or out of trade
-  for i in range(1,len(df)):
-    if Signal.Signal[i] == 0:# this is where  we are between g and j; a trade is either
-      #being maintained or we are out of a trade
-      Signal.Signal[i] = Signal.Signal[i-1] # fill in where  Signal = 0 (will already be
-      # entered or exited from a trade)
-  Signal.Signal[Signal.Signal == -1] = 0 # represent exiting trades with 0 instead of -1
 
   # account for exiting trades at the end of each month
   # create empty data frame
@@ -113,8 +107,16 @@ def strat(M,g,j,s,X_code,Y_code,X_close,X_volume,Y_close,Y_volume):
     # the current day, then the previous row must be the last trading day of
     # the previous month.  
     if ((df.index.day[i] <= 3) and (df.index.day[i]-df.index.day[i-1] != 1)):
-      Signal.Signal[i-1] = 0 #update Signal
+      Signal.Signal[i-1] = -1 #update Signal
       EOM.EOM[i-1] = 1 #update end of month (EOM)
+
+  for i in range(1,len(df)):
+    if Signal.Signal[i] == 0:# this is where  we are between g and j; a trade is either
+      #being maintained or we are out of a trade
+      Signal.Signal[i] = Signal.Signal[i-1] # fill in where  Signal = 0 (will already be
+      # entered or exited from a trade)
+  Signal.Signal[Signal.Signal == -1] = 0 # represent exiting trades with 0 instead of -1
+
       
   # GTC (gross traded cash)
   # for GTC, we need to find where the entry point is and what GTC is at that
@@ -126,7 +128,7 @@ def strat(M,g,j,s,X_code,Y_code,X_close,X_volume,Y_close,Y_volume):
   GTC = pd.DataFrame(np.zeros((len(df),1)))
   GTC = GTC.set_index(df.index)
   GTC.columns = ['GTC']
-  GTC.GTC.ix[0] = 1*(Signal.Signal.ix[0] == 1) # set the correct first indicatoor
+  GTC.GTC.ix[0] = 1*(Signal.Signal.ix[0] == 1) # set the correct first indicator
   # set all other entry time indicators
   GTC.GTC = GTC.GTC + 1*((Signal.Signal == 1) & (Signal.shift(1).Signal == 0)) 
   # mutiply by GTC
@@ -141,8 +143,15 @@ def strat(M,g,j,s,X_code,Y_code,X_close,X_volume,Y_close,Y_volume):
   Stop.columns = ['Stop']
   # mark if the simulation experiences a day such that the present position value
   # has lost more than a proportion s. Update Stop column and Signal column
-  Stop.Stop[(GTC.GTC != 0) & (GTC.GTC*s*-1>np.round(Signal.Signal*df.Nt/100,0).shift(1)*df.Delta)] = 1
-  Signal.Signal[(GTC.GTC != 0) & (GTC.GTC*s*-1>np.round(Signal.Signal*df.Nt/100,0).shift(1)*df.Delta)] = 0
+  Stop.Stop[(GTC.GTC != 0) & (GTC.GTC*s*-1>np.round(Signal.Signal*df.Nt/100,0).shift(1)*-df.Delta)] = 1
+  Signal.Signal[(GTC.GTC != 0) & (GTC.GTC*s*-1>np.round(Signal.Signal*df.Nt/100,0).shift(1)*-df.Delta)] = 0
+
+  # roll forward the stop until DeltaM is above g again
+  for i in range(1,len(df)):
+    if ((Stop.Stop[i-1]==1) | (Signal.Signal[i-1]==-1)) & (df.DeltaM[i] < g):
+        Signal.Signal[i] = -1
+        Stop.Stop[i] = 0
+  Signal.Signal[Signal.Signal == -1] = 0 # represent exiting trades with 0 instead of -1
 
   # add empty columns for entry and exit points
   Entry = pd.DataFrame(np.zeros((len(df),1)))
@@ -164,7 +173,7 @@ def strat(M,g,j,s,X_code,Y_code,X_close,X_volume,Y_close,Y_volume):
   # the dollar profit(loss) is going to be the next day after the  trade has been
   # entered.  this profit amount will be the difference in returns of X and Y
   # times the trade size
-  Profit = pd.DataFrame(Size.Size.shift(1)*(df.Delta)) # dollar profit(loss)
+  Profit = pd.DataFrame(Size.Size.shift(1)*(-df.Delta)) # dollar profit(loss)
   Profit.ix[0] = 0 # can't calculate profit for the first day
   Profit.columns = ['Profit']
   Cum_Profit = pd.DataFrame(np.cumsum(Profit.Profit)) #cumulative profit
@@ -177,7 +186,7 @@ def strat(M,g,j,s,X_code,Y_code,X_close,X_volume,Y_close,Y_volume):
   Cum_Return.columns = ['Cum_Return']
 
   # set dataframe - make it easier to read and in one table for outputting
-  df =  pd.concat([df.XP,df.XV,np.round(df.XDDV,0),df.YP,df.YV,np.round(df.Nt,0),np.round(df.XR,3), 
+  df =  pd.concat([df.XP,df.XV,np.round(df.XDDV,0),np.round(df.YP,2),df.YV,np.round(df.Nt,0),np.round(df.XR,3), 
                    np.round(df.YR,3),np.round(df.Delta,3),np.round(df.DeltaM,3),Signal,Entry,Exit,
                   EOM,Size,np.round(GTC,0),Stop,np.round(Profit,0),np.round(Cum_Profit,0),K,
                   Cum_Return],
@@ -185,11 +194,15 @@ def strat(M,g,j,s,X_code,Y_code,X_close,X_volume,Y_close,Y_volume):
   return df
 
 # output
-M = 12
-df = strat(M,-0.0004*M,-0.0006*M,0.0001,'GOOG/NYSE_XSD','YAHOO/SMH','GOOG.NYSE_XSD - Close'
+M = 21
+G = 0.0022
+J = 0.0005
+s = 0.00003
+df = strat(M,G*M,J*M,s,'GOOG/NYSE_XSD','YAHOO/SMH','GOOG.NYSE_XSD - Close'
       ,'GOOG.NYSE_XSD - Volume','YAHOO.SMH - Close','YAHOO.SMH - Volume')  
 
 # let's see what comes out
+pd.set_option('display.max_columns', 500)
 print(df[(df.index.year == 2014) & (df.index.month == 1)])
 print(df[(df.index.year == 2015) & (df.index.month == 12)])
 
@@ -198,8 +211,8 @@ plt.figure(1,figsize=(16,8))
 plt.title('Difference in Returns Over M Days')
 plt.ylabel('Return Difference')
 df.DeltaM.plot(color='black')
-plt.axhline(y=0.0013*M,color='green')
-plt.axhline(y=0.0011*M,color='red')
+plt.axhline(y=G*M,color='green')
+plt.axhline(y=J*M,color='red')
 Entry_Pts = pd.DataFrame(df.Entry*df.DeltaM)
 Entry_Pts = Entry_Pts[Entry_Pts != 0]
 Exit_Pts = pd.DataFrame(df.Exit*df.DeltaM)
@@ -212,7 +225,8 @@ p3, = plt.plot(Stop_Pts,'r*',ms=10)
 for i in range(0,len(df)):
     if df.EOM[i] == 1:
         plt.axvline(x=df.index[i],color='grey')
-plt.legend([p1,p2,p3],['Entry Point','Exit Point','Stop-Loss Point'],loc='lower right')
+plt.legend([p1,p2,p3],['Entry Point','Exit Point','Stop-Loss Point'],
+           numpoints=1,loc='lower right')
 
 # plot cumulative profit
 plt.figure(2,figsize=(16,8))
@@ -231,7 +245,8 @@ p3, = plt.plot(Stop_Pts,'r*',ms=10)
 for i in range(0,len(df)):
     if df.EOM[i] == 1:
         plt.axvline(x=df.index[i],color='grey')
-plt.legend([p1,p2,p3],['Entry Point','Exit Point','Stop-Loss Point'],loc='lower right')
+plt.legend([p1,p2,p3],['Entry Point','Exit Point','Stop-Loss Point'],
+           numpoints=1,loc='lower right')
 
 ############################################################################
 #4 ANALYSIS
@@ -239,8 +254,11 @@ plt.legend([p1,p2,p3],['Entry Point','Exit Point','Stop-Loss Point'],loc='lower 
 
 # check overall profit when varying M. need to make j g and s functions of M
 Perform_M = pd.DataFrame(columns = ['M','Cum_Profit'])
+G = 0.0022
+J = 0.0005
+s = 0.00003
 for M in range(1,25):
-  df = strat(M,-0.0004*M,-0.0006*M,0.0001,'GOOG/NYSE_XSD','YAHOO/SMH','GOOG.NYSE_XSD - Close'
+  df = strat(M,G*M,J*M,s,'GOOG/NYSE_XSD','YAHOO/SMH','GOOG.NYSE_XSD - Close'
       ,'GOOG.NYSE_XSD - Volume','YAHOO.SMH - Close','YAHOO.SMH - Volume')
   Perform_M = Perform_M.append(pd.DataFrame([[M,df.Cum_Profit[-1]]],columns=['M','Cum_Profit']),
       ignore_index=True)
@@ -253,12 +271,14 @@ plt.grid()
 
 # check overall profit when widening the spread of g and j
 Perform_W = pd.DataFrame(columns = ['W','Cum_Profit'])
-M = 12
+M = 21
+s = 0.00003
 for i in range(0,20):
-  i = i/20000
-  G = -0.0005+i
-  J = -0.0005-i
-  df = strat(M,G*M,J*M,0.0001,'GOOG/NYSE_XSD','YAHOO/SMH','GOOG.NYSE_XSD - Close'
+  i = i/10000
+  #G = 0.0012+i
+  G = 0.0022
+  J = 0.0010-i
+  df = strat(M,G*M,J*M,s,'GOOG/NYSE_XSD','YAHOO/SMH','GOOG.NYSE_XSD - Close'
       ,'GOOG.NYSE_XSD - Volume','YAHOO.SMH - Close','YAHOO.SMH - Volume')
   Perform_W = Perform_W.append(pd.DataFrame([[G,J,G-J,df.Cum_Profit[-1]]],columns=['G','J','W','Cum_Profit']),
       ignore_index=True)
@@ -271,12 +291,13 @@ plt.grid()
 
 # check overall profit when shifting the spread of g and j
 Perform_S = pd.DataFrame(columns = ['G','J','Cum_Profit'])
-M = 12
-for i in range(0,60):
-  i = i/20000
-  G = -0.0008+i
+M = 21
+s = 0.00003
+for i in range(0,30):
+  i = i/10000
+  G = 0.0007+i
   J = -0.0010+i
-  df = strat(M,G*M,J*M,0.0001,'GOOG/NYSE_XSD','YAHOO/SMH','GOOG.NYSE_XSD - Close'
+  df = strat(M,G*M,J*M,s,'GOOG/NYSE_XSD','YAHOO/SMH','GOOG.NYSE_XSD - Close'
       ,'GOOG.NYSE_XSD - Volume','YAHOO.SMH - Close','YAHOO.SMH - Volume')
   Perform_S = Perform_S.append(pd.DataFrame([[G,J,df.Cum_Profit[-1]]],
                                             columns=['G','J','Cum_Profit']),ignore_index=True)
@@ -289,17 +310,17 @@ plt.grid()
 
 # check overall profit when varying the stop loss level
 Perform_SL = pd.DataFrame(columns = ['s','Cum_Profit'])
-M = 12
-G = -0.0004
-J = -0.0006
+M = 21
+G = 0.0022
+J = 0.0005
 for s in range(0,20):
-  s = s/100000
+  s = s/200000
   df = strat(M,G*M,J*M,s,'GOOG/NYSE_XSD','YAHOO/SMH','GOOG.NYSE_XSD - Close'
       ,'GOOG.NYSE_XSD - Volume','YAHOO.SMH - Close','YAHOO.SMH - Volume')
   Perform_SL = Perform_SL.append(pd.DataFrame([[s,df.Cum_Profit[-1]]],
                                             columns=['s','Cum_Profit']),ignore_index=True)
 plt.figure(6)
-plt.plot(Perform_SL.s,Perform_SL.Cum_Profit,color='black') # window of 0.005 looks good
+plt.plot(Perform_SL.s,Perform_SL.Cum_Profit,color='black') # window of 0.0004 looks good
 plt.title('Profit When Shifting the Stop Loss Level')
 plt.ylabel('Total Profit (dollars)')
 plt.xlabel('s')
