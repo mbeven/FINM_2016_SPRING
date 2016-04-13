@@ -194,12 +194,17 @@ def strat(M,g,j,s,X_code,Y_code,X_close,X_volume,Y_close,Y_volume):
   return df
 
 # output
-M = 21
-G = 0.0022
-J = 0.0005
-s = 0.00003
-df = strat(M,G*M,J*M,s,'GOOG/NYSE_XSD','YAHOO/SMH','GOOG.NYSE_XSD - Close'
-      ,'GOOG.NYSE_XSD - Volume','YAHOO.SMH - Close','YAHOO.SMH - Volume')  
+M = 20
+G = 0.0018
+J = -0.0004
+s = 0.00015
+X_code = 'EOD/XSD'
+Y_code = 'EOD/SMH'
+X_close = 'EOD.XSD - Adj_Close'
+X_volume = 'EOD.XSD - Adj_Volume'
+Y_close = 'EOD.SMH - Adj_Close'
+Y_volume = 'EOD.SMH - Adj_Volume'
+df = strat(M,G*M,J*M,s,X_code,Y_code,X_close,X_volume,Y_close,Y_volume)  
 
 # let's see what comes out
 pd.set_option('display.max_columns', 500)
@@ -254,12 +259,17 @@ plt.legend([p1,p2,p3],['Entry Point','Exit Point','Stop-Loss Point'],
 
 # check overall profit when varying M. need to make j g and s functions of M
 Perform_M = pd.DataFrame(columns = ['M','Cum_Profit'])
-G = 0.0022
-J = 0.0005
-s = 0.00003
+G = 0.0018
+J = -0.0004
+s = 0.00015
+X_code = 'EOD/XSD'
+Y_code = 'EOD/SMH'
+X_close = 'EOD.XSD - Adj_Close'
+X_volume = 'EOD.XSD - Adj_Volume'
+Y_close = 'EOD.SMH - Adj_Close'
+Y_volume = 'EOD.SMH - Adj_Volume'
 for M in range(1,25):
-  df = strat(M,G*M,J*M,s,'GOOG/NYSE_XSD','YAHOO/SMH','GOOG.NYSE_XSD - Close'
-      ,'GOOG.NYSE_XSD - Volume','YAHOO.SMH - Close','YAHOO.SMH - Volume')
+  df = strat(M,G*M,J*M,s,X_code,Y_code,X_close,X_volume,Y_close,Y_volume)
   Perform_M = Perform_M.append(pd.DataFrame([[M,df.Cum_Profit[-1]]],columns=['M','Cum_Profit']),
       ignore_index=True)
 plt.figure(3)
@@ -271,15 +281,20 @@ plt.grid()
 
 # check overall profit when widening the spread of g and j
 Perform_W = pd.DataFrame(columns = ['W','Cum_Profit'])
-M = 21
-s = 0.00003
-for i in range(0,20):
+M = 20
+s = 0.00015
+X_code = 'EOD/XSD'
+Y_code = 'EOD/SMH'
+X_close = 'EOD.XSD - Adj_Close'
+X_volume = 'EOD.XSD - Adj_Volume'
+Y_close = 'EOD.SMH - Adj_Close'
+Y_volume = 'EOD.SMH - Adj_Volume'
+for i in range(0,30):
   i = i/10000
   #G = 0.0012+i
-  G = 0.0022
-  J = 0.0010-i
-  df = strat(M,G*M,J*M,s,'GOOG/NYSE_XSD','YAHOO/SMH','GOOG.NYSE_XSD - Close'
-      ,'GOOG.NYSE_XSD - Volume','YAHOO.SMH - Close','YAHOO.SMH - Volume')
+  G = 0.0018
+  J = 0.0018-i
+  df = strat(M,G*M,J*M,s,X_code,Y_code,X_close,X_volume,Y_close,Y_volume)
   Perform_W = Perform_W.append(pd.DataFrame([[G,J,G-J,df.Cum_Profit[-1]]],columns=['G','J','W','Cum_Profit']),
       ignore_index=True)
 plt.figure(4)
@@ -291,14 +306,19 @@ plt.grid()
 
 # check overall profit when shifting the spread of g and j
 Perform_S = pd.DataFrame(columns = ['G','J','Cum_Profit'])
-M = 21
-s = 0.00003
+M = 20
+s = 0.00015
+X_code = 'EOD/XSD'
+Y_code = 'EOD/SMH'
+X_close = 'EOD.XSD - Adj_Close'
+X_volume = 'EOD.XSD - Adj_Volume'
+Y_close = 'EOD.SMH - Adj_Close'
+Y_volume = 'EOD.SMH - Adj_Volume'
 for i in range(0,30):
   i = i/10000
-  G = 0.0007+i
-  J = -0.0010+i
-  df = strat(M,G*M,J*M,s,'GOOG/NYSE_XSD','YAHOO/SMH','GOOG.NYSE_XSD - Close'
-      ,'GOOG.NYSE_XSD - Volume','YAHOO.SMH - Close','YAHOO.SMH - Volume')
+  G = -0.0001+i
+  J = -0.0023+i
+  df = strat(M,G*M,J*M,s,X_code,Y_code,X_close,X_volume,Y_close,Y_volume)
   Perform_S = Perform_S.append(pd.DataFrame([[G,J,df.Cum_Profit[-1]]],
                                             columns=['G','J','Cum_Profit']),ignore_index=True)
 plt.figure(5)
@@ -310,13 +330,18 @@ plt.grid()
 
 # check overall profit when varying the stop loss level
 Perform_SL = pd.DataFrame(columns = ['s','Cum_Profit'])
-M = 21
-G = 0.0022
-J = 0.0005
-for s in range(0,20):
-  s = s/200000
-  df = strat(M,G*M,J*M,s,'GOOG/NYSE_XSD','YAHOO/SMH','GOOG.NYSE_XSD - Close'
-      ,'GOOG.NYSE_XSD - Volume','YAHOO.SMH - Close','YAHOO.SMH - Volume')
+M = 20
+G = 0.0018
+J = -0.0004
+X_code = 'EOD/XSD'
+Y_code = 'EOD/SMH'
+X_close = 'EOD.XSD - Adj_Close'
+X_volume = 'EOD.XSD - Adj_Volume'
+Y_close = 'EOD.SMH - Adj_Close'
+Y_volume = 'EOD.SMH - Adj_Volume'
+for s in range(0,40):
+  s = s/100000
+  df = strat(M,G*M,J*M,s,X_code,Y_code,X_close,X_volume,Y_close,Y_volume)
   Perform_SL = Perform_SL.append(pd.DataFrame([[s,df.Cum_Profit[-1]]],
                                             columns=['s','Cum_Profit']),ignore_index=True)
 plt.figure(6)
