@@ -1,0 +1,324 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Short Sectioned Assignment
+% LaTeX Template
+% Version 1.0 (5/5/12)
+%
+% This template has been downloaded from:
+% http://www.LaTeXTemplates.com
+%
+% Original author:
+% Frits Wenneker (http://www.howtotex.com)
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+\documentclass[paper=a4, fontsize=11pt]{scrartcl} % A4 paper and 11pt font size
+
+\usepackage[T1]{fontenc} % Use 8-bit encoding that has 256 glyphs
+\usepackage{fourier} % Use the Adobe Utopia font for the document - comment this line to return to the LaTeX default
+\usepackage[english]{babel} % English language/hyphenation
+\usepackage{amsmath,amsfonts,amsthm,mathtools,amssymb} % Math packages
+\usepackage{dsfont} %double stroke
+\usepackage[margin=1.75cm]{geometry}
+\usepackage{multicol}
+\usepackage{setspace}
+\usepackage{graphicx}
+\usepackage{setspace}
+\onehalfspacing
+\usepackage{multicol}
+\allowdisplaybreaks
+\usepackage{hyperref}
+
+% R code
+\usepackage{listings}
+
+    \lstset{
+    language=R,
+    basicstyle=\scriptsize\ttfamily,
+    commentstyle=\ttfamily\color{gray},
+    numbers=left,
+    numberstyle=\ttfamily\color{gray}\footnotesize,
+    stepnumber=1,
+    numbersep=5pt,
+    backgroundcolor=\color{white},
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    frame=single,
+    tabsize=2,
+    captionpos=b,
+    breaklines=true,
+    breakatwhitespace=false,
+    title=\lstname,
+    escapeinside={},
+    keywordstyle={},
+    morekeywords={}
+    }
+% Binomial tree
+\usepackage{tikz}
+\usetikzlibrary{matrix}
+
+% Permutations and combinations 
+\newcommand*{\Perm}[2]{{}^{#1}\!P_{#2}}%
+\newcommand*{\Comb}[2]{{}^{#1}C_{#2}}%
+
+\usepackage{sectsty} % Allows customizing section commands
+\allsectionsfont{\raggedright \normalfont} % Make all sections left, the default font and small caps
+\renewcommand{\thesubsection}{\alph{subsection}} % Make the subsections letters
+\newcommand{\rreduce}[2]{\mathop{\longrightarrow}_{\tiny{#1}}}
+
+\usepackage{float} % picture placement
+\usepackage{subfig} % picture placement
+\usepackage{fancyhdr} % Custom headers and footers
+\pagestyle{fancyplain} % Makes all pages in the document conform to the custom headers and footers
+\fancyhead{} % No page header - if you want one, create it in the same way as the footers below
+\fancyfoot[L]{} % Empty left footer
+\fancyfoot[C]{} % Empty center footer
+\fancyfoot[R]{\thepage} % Page numbering for right footer
+\renewcommand{\headrulewidth}{0pt} % Remove header underlines
+\renewcommand{\footrulewidth}{0pt} % Remove footer underlines
+\setlength{\headheight}{13.6pt} % Customize the height of the header
+
+\numberwithin{equation}{section} % Number equations within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+\numberwithin{figure}{section} % Number figures within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+\numberwithin{table}{section} % Number tables within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+
+\setlength\parindent{0pt} % Removes all indentation from paragraphs - comment this line for an assignment with lots of text
+
+%----------------------------------------------------------------------------------------
+%	TITLE SECTION
+%----------------------------------------------------------------------------------------
+
+\newcommand{\horrule}[1]{\rule{\linewidth}{#1}} % Create horizontal rule command with 1 argument of height
+
+\title{	
+\normalfont \normalsize 
+\textsc{University of Chicago | Financial Mathematics} \\ [25pt] % Your university, school and/or department name(s)
+\horrule{0.5pt} \\[0.4cm] % Thin top horizontal rule
+\huge FINM 37300: Homework 2 \\ % The assignment title
+\horrule{2pt} \\[0.5cm] % Thick bottom horizontal rule
+}
+
+\author{Michael Beven - 455613} % Your name
+
+\date{\normalsize\today} % Today's date or a custom date
+
+\begin{document}
+
+\maketitle % Print the title
+
+%----------------------------------------------------------------------------------------
+%	PROBLEM 5
+%----------------------------------------------------------------------------------------
+
+\section*{5.}
+
+Based on Put-Call Parity,
+
+\begin{align*}
+\text{call} &= 0.021 + e^{-0.0075 \times 0.4} \times (1.1225 - 1.05)\\
+&= 0.093
+\end{align*}
+
+%----------------------------------------------------------------------------------------
+%	PROBLEM 6
+%----------------------------------------------------------------------------------------
+
+\section*{6.}
+
+c) - foreign exchange positions must be present valued using the foreign interest rate.  The growth rate of the portfolio uses the domestic rate, whereas discount the portfolio uses the foreign rate.  In the basic non-dividend Black-Scholes model, both these rates are the same.  
+
+%----------------------------------------------------------------------------------------
+%	PROBLEM 7
+%----------------------------------------------------------------------------------------
+
+\section*{7.}
+
+The argument on slide 12 cannot apply to $V$, because $S_t$ is not an investible (or tradable) asset.  We are in the wrong measure to do the valuation. 
+
+%----------------------------------------------------------------------------------------
+%	PROBLEM 8
+%----------------------------------------------------------------------------------------
+
+\section*{8.}
+
+\begin{align*}
+525.70 \Big(\frac{1}{8.1620} - \frac{1}{8.0630} \Big) = -0.790824 
+\end{align*}
+
+Hence the mark-to-market value of the position is -790,824 USD.  
+
+%----------------------------------------------------------------------------------------
+%	PROBLEM 9
+%----------------------------------------------------------------------------------------
+
+\section*{9.}
+
+%----------------------------------------------------------------------------------------
+%	PART A
+%----------------------------------------------------------------------------------------
+
+\section*{a)}
+
+\begin{align*}
+100 \text{million}/8.3460 = 11.98 \text{million}
+\end{align*}
+
+Hence 11.98 million USD
+
+%----------------------------------------------------------------------------------------
+%	PART B
+%----------------------------------------------------------------------------------------
+
+\section*{b)}
+
+\begin{align*}
+10 \text{million}\times 1.4045 = 14.045 \text{million}
+\end{align*}
+
+Hence 14.045 million USD
+
+
+%----------------------------------------------------------------------------------------
+%	PROBLEM 10
+%----------------------------------------------------------------------------------------
+
+\section*{10.}
+
+%----------------------------------------------------------------------------------------
+%	PART A
+%----------------------------------------------------------------------------------------
+
+\section*{a)}
+
+\begin{align*}
+1.1395\times110.10 = 125.46
+\end{align*}
+
+%----------------------------------------------------------------------------------------
+%	PART B
+%----------------------------------------------------------------------------------------
+
+\section*{b)}
+
+\begin{align*}
+110.10/0.9570 = 115.05
+\end{align*}
+
+%----------------------------------------------------------------------------------------
+%	PART C
+%----------------------------------------------------------------------------------------
+
+\section*{c)}
+
+\begin{align*}
+1.1395/1.4070 = 0.8099
+\end{align*}
+
+%----------------------------------------------------------------------------------------
+%	PART D
+%----------------------------------------------------------------------------------------
+
+\section*{d)}
+
+\begin{align*}
+1.4070\times0.9570 = 1.3465
+\end{align*}
+
+%----------------------------------------------------------------------------------------
+%	PROBLEM 11
+%----------------------------------------------------------------------------------------
+
+\section*{11.}
+
+\begin{align*}
+F &= 0.6820 \Bigg(\frac{1+0.0060\frac{182}{360}}{1+0.0235\frac{182}{365}} \Bigg) = 0.6761
+\end{align*}
+
+%----------------------------------------------------------------------------------------
+%	PROBLEM 12
+%----------------------------------------------------------------------------------------
+
+\section*{12.}
+
+%----------------------------------------------------------------------------------------
+%	PART A
+%----------------------------------------------------------------------------------------
+
+\section*{a)}
+
+NOK earns a higher rate than USD, therefore if we are buying NOK against USD, we must be earning the forward points.  Hence, $F = 8.3405+0.0040 = 8.3445$.
+
+%----------------------------------------------------------------------------------------
+%	PART B
+%----------------------------------------------------------------------------------------
+
+\section*{b)}
+
+NOK earns a lower rate than AUD, therefore if we are buying NOK against AUD, we must be paying the forward points.  Hence, $F = 6.3195 - 0.0225 = 6.2970$.
+
+%----------------------------------------------------------------------------------------
+%	PROBLEM 13
+%----------------------------------------------------------------------------------------
+
+\section*{13.}
+
+To get the upper and lower arbitrage limits, calculate forward rates for (USDJPY=110.55, 6mo USD deposit=0.55\%, 6mo JPY deposit=-0.15\%) and  (USDJPY=110.50, 6mo USD deposit=0.65\%, 6mo JPY deposit=-0.25\%) using:
+
+\begin{align*}
+F = S\Bigg(\frac{1+R_{JPY}\frac{181}{360}}{1+R_{USD}\frac{181}{360}} \Bigg)
+\end{align*}
+
+We then take this minus the corresponding USDJPY to obtain the limits of forward points. i.e.:  
+
+\begin{align*}
+\text{Forward Points} = S\Bigg(\frac{1+R_{JPY}\frac{181}{360}}{1+R_{USD}\frac{181}{360}} - 1 \Bigg)
+\end{align*}
+
+Therefore, the limits are: lower limit of -4984 and upper limit of -3880.   
+
+%----------------------------------------------------------------------------------------
+%	PROBLEM 14
+%----------------------------------------------------------------------------------------
+
+\section*{14.}
+
+Using the forward equation, we have:
+
+\begin{align*}
+\text{Forward Points} &= 0.9600 \Bigg(\frac{1-0.0070\frac{92}{360}}{1+0.0065\frac{92}{360}} - 1 \Bigg)\\
+&= -0.0033
+\end{align*}
+
+We now want to decrease the forward points from -33 to -34 and see what $S$ is required for this:
+
+\begin{align*}
+S \Bigg(\frac{1-0.0070\frac{92}{360}}{1+0.0065\frac{92}{360}} - 1 \Bigg) &= -0.0034\\
+S &= 0.9872
+\end{align*}
+
+Therefore the change in pips would have to be $(0.9872-0.9600)\times10000 = 272$pips
+
+%----------------------------------------------------------------------------------------
+%	PROBLEM 15
+%----------------------------------------------------------------------------------------
+
+\section*{15.}
+
+Here we don't care about the 55 million dollars; it is just an 'average' of the forward rates that needs to be calculated:
+
+\begin{align*}
+0.7454e^{-0.0085} + 0.7359e^{-2\times0.0085} + 0.7270e^{-3\times0.0085} &= \text{AUDUSD}(e^{-0.0085}+e^{-2\times0.0085}+e^{-3\times0.0085})
+\end{align*}
+
+Solving for AUDUSD gives 0.7362.
+
+%----------------------------------------------------------------------------------------
+
+\end{document}
