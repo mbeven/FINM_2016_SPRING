@@ -39,11 +39,8 @@ def strat(M,g,j,s,X_code,Y_code,X_close,X_volume,Y_close,Y_volume):
   ############################################################################ 
   
   # grab data using Quandl
-  raw_data = Quandl.get(list((X_code,Y_code)),
-      authtoken="v21snmSix9KyXBWc1RkF",
-      trim_start="2013-12-02",
-      trim_end="2015-12-31",
-      returns="pandas")
+  raw_data = Quandl.get(list((X_code,Y_code)),authtoken="v21snmSix9KyXBWc1RkF",
+      trim_start="2013-12-02",trim_end="2015-12-31",returns="pandas")
 
   # take a subset of columns of the close data and volume (volume needed for daily
   # dollar volume)
@@ -94,8 +91,8 @@ def strat(M,g,j,s,X_code,Y_code,X_close,X_volume,Y_close,Y_volume):
   Signal.columns = ['Signal']
 
   # beginning January 1 2014, start generating signals based on g/j
-  Signal.Signal[df.DeltaM > g] = 1 # should be entering or maintaining trade
-  Signal.Signal[df.DeltaM < j] = -1 # should be exiting or out of trade
+  Signal.Signal[np.abs(df.DeltaM) > g] = 1 # should be entering or maintaining trade
+  Signal.Signal[np.abs(df.DeltaM) < j] = -1 # should be exiting or out of trade
 
   # account for exiting trades at the end of each month
   # create empty data frame
@@ -143,12 +140,15 @@ def strat(M,g,j,s,X_code,Y_code,X_close,X_volume,Y_close,Y_volume):
   Stop.columns = ['Stop']
   # mark if the simulation experiences a day such that the present position value
   # has lost more than a proportion s. Update Stop column and Signal column
-  Stop.Stop[(GTC.GTC != 0) & (GTC.GTC*s*-1>np.round(Signal.Signal*df.Nt/100,0).shift(1)*-df.Delta)] = 1
-  Signal.Signal[(GTC.GTC != 0) & (GTC.GTC*s*-1>np.round(Signal.Signal*df.Nt/100,0).shift(1)*-df.Delta)] = 0
+  Stop.Stop[(DeltaM.DeltaM > j) & (GTC.GTC != 0) & (GTC.GTC*s*-1>np.round(Signal.Signal*df.Nt/100,0).shift(1)*-df.Delta)] = 1
+  Signal.Signal[(DeltaM.DeltaM > j) & (GTC.GTC != 0) & (GTC.GTC*s*-1>np.round(Signal.Signal*df.Nt/100,0).shift(1)*-df.Delta)] = 0
+  Stop.Stop[(DeltaM.DeltaM < j) & (GTC.GTC != 0) & (GTC.GTC*s*-1>np.round(Signal.Signal*df.Nt/100,0).shift(1)*df.Delta)] = 1
+  Signal.Signal[(DeltaM.DeltaM < j) & (GTC.GTC != 0) & (GTC.GTC*s*-1>np.round(Signal.Signal*df.Nt/100,0).shift(1)*df.Delta)] = 0
+
 
   # roll forward the stop until DeltaM is above g again
   for i in range(1,len(df)):
-    if ((Stop.Stop[i-1]==1) | (Signal.Signal[i-1]==-1)) & (df.DeltaM[i] < g):
+    if ((Stop.Stop[i-1]==1) | (Signal.Signal[i-1]==-1)) & (np.abs(df.DeltaM[i]) < g):
         Signal.Signal[i] = -1
         Stop.Stop[i] = 0
   Signal.Signal[Signal.Signal == -1] = 0 # represent exiting trades with 0 instead of -1
@@ -173,9 +173,15 @@ def strat(M,g,j,s,X_code,Y_code,X_close,X_volume,Y_close,Y_volume):
   # the dollar profit(loss) is going to be the next day after the  trade has been
   # entered.  this profit amount will be the difference in returns of X and Y
   # times the trade size
-  Profit = pd.DataFrame(Size.Size.shift(1)*(-df.Delta)) # dollar profit(loss)
-  Profit.ix[0] = 0 # can't calculate profit for the first day
+  Profit = pd.DataFrame(np.zeros((len(df),1)))
+  Profit = Profit.set_index(df.index)
   Profit.columns = ['Profit']
+  for i in range(1,len(df)):
+      if DeltaM.DeltaM[i] > j:
+          Profit.Profit[i] = Size.Size[i-1]*(-df.Delta[i])
+      if DeltaM.DeltaM[i] < j:
+          Profit.Profit[i] = Size.Size[i-1]*(df.Delta[i])
+  Profit.ix[0] = 0 # can't calculate profit for the first day
   Cum_Profit = pd.DataFrame(np.cumsum(Profit.Profit)) #cumulative profit
   Cum_Profit.columns = ['Cum_Profit']
   # capital - the capital available grows(shrinks) on a daily basis, based on
@@ -195,9 +201,9 @@ def strat(M,g,j,s,X_code,Y_code,X_close,X_volume,Y_close,Y_volume):
 
 # output
 M = 20
-G = 0.0018
-J = -0.0004
-s = 0.00015
+G = 0.0014
+J = 0.0002
+s = 0.00009
 X_code = 'EOD/XSD'
 Y_code = 'EOD/SMH'
 X_close = 'EOD.XSD - Adj_Close'
@@ -218,6 +224,8 @@ plt.ylabel('Return Difference')
 df.DeltaM.plot(color='black')
 plt.axhline(y=G*M,color='green')
 plt.axhline(y=J*M,color='red')
+plt.axhline(y=-G*M,color='green')
+plt.axhline(y=-J*M,color='red')
 Entry_Pts = pd.DataFrame(df.Entry*df.DeltaM)
 Entry_Pts = Entry_Pts[Entry_Pts != 0]
 Exit_Pts = pd.DataFrame(df.Exit*df.DeltaM)
@@ -259,9 +267,9 @@ plt.legend([p1,p2,p3],['Entry Point','Exit Point','Stop-Loss Point'],
 
 # check overall profit when varying M. need to make j g and s functions of M
 Perform_M = pd.DataFrame(columns = ['M','Cum_Profit'])
-G = 0.0018
-J = -0.0004
-s = 0.00015
+G = 0.0014
+J = 0.0002
+s = 0.00009
 X_code = 'EOD/XSD'
 Y_code = 'EOD/SMH'
 X_close = 'EOD.XSD - Adj_Close'
@@ -282,18 +290,18 @@ plt.grid()
 # check overall profit when widening the spread of g and j
 Perform_W = pd.DataFrame(columns = ['W','Cum_Profit'])
 M = 20
-s = 0.00015
+s = 0.00009
 X_code = 'EOD/XSD'
 Y_code = 'EOD/SMH'
 X_close = 'EOD.XSD - Adj_Close'
 X_volume = 'EOD.XSD - Adj_Volume'
 Y_close = 'EOD.SMH - Adj_Close'
 Y_volume = 'EOD.SMH - Adj_Volume'
-for i in range(0,30):
+for i in range(0,14):
   i = i/10000
   #G = 0.0012+i
-  G = 0.0018
-  J = 0.0018-i
+  G = 0.0014
+  J = 0.0014-i
   df = strat(M,G*M,J*M,s,X_code,Y_code,X_close,X_volume,Y_close,Y_volume)
   Perform_W = Perform_W.append(pd.DataFrame([[G,J,G-J,df.Cum_Profit[-1]]],columns=['G','J','W','Cum_Profit']),
       ignore_index=True)
@@ -307,17 +315,17 @@ plt.grid()
 # check overall profit when shifting the spread of g and j
 Perform_S = pd.DataFrame(columns = ['G','J','Cum_Profit'])
 M = 20
-s = 0.00015
+s = 0.00009
 X_code = 'EOD/XSD'
 Y_code = 'EOD/SMH'
 X_close = 'EOD.XSD - Adj_Close'
 X_volume = 'EOD.XSD - Adj_Volume'
 Y_close = 'EOD.SMH - Adj_Close'
 Y_volume = 'EOD.SMH - Adj_Volume'
-for i in range(0,30):
+for i in range(0,20):
   i = i/10000
-  G = -0.0001+i
-  J = -0.0023+i
+  G = 0.0012+i
+  J = 0.0000+i
   df = strat(M,G*M,J*M,s,X_code,Y_code,X_close,X_volume,Y_close,Y_volume)
   Perform_S = Perform_S.append(pd.DataFrame([[G,J,df.Cum_Profit[-1]]],
                                             columns=['G','J','Cum_Profit']),ignore_index=True)
@@ -331,8 +339,8 @@ plt.grid()
 # check overall profit when varying the stop loss level
 Perform_SL = pd.DataFrame(columns = ['s','Cum_Profit'])
 M = 20
-G = 0.0018
-J = -0.0004
+G = 0.0014
+J = 0.0002
 X_code = 'EOD/XSD'
 Y_code = 'EOD/SMH'
 X_close = 'EOD.XSD - Adj_Close'
