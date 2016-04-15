@@ -9,7 +9,10 @@ A spread trading strategy checks a running estimate of the displacement between
 two related instruments and bets that displacement will decline whenever it gets
 large.
 
-Week 3:
+Week 3: Benchmarking Simple Spread Trading
+
+Study risk and return of simple spread trading strategies and compare them to
+benchmarks
 
 Week 4:
 
