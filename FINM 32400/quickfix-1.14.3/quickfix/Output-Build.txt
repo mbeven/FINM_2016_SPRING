@@ -1,0 +1,10 @@
+﻿1>------ Clean started: Project: test_acceptance_runner, Configuration: Debug Win32 ------
+2>------ Clean started: Project: test_unit, Configuration: Debug Win32 ------
+3>------ Clean started: Project: test_performance, Configuration: Debug Win32 ------
+4>------ Clean started: Project: test_acceptance, Configuration: Debug Win32 ------
+5>------ Clean started: Project: example_tradeclient, Configuration: Debug Win32 ------
+6>------ Clean started: Project: example_ordermatch, Configuration: Debug Win32 ------
+7>------ Clean started: Project: example_executor_cpp, Configuration: Debug Win32 ------
+8>------ Clean started: Project: UnitTest++_vs12, Configuration: Debug Win32 ------
+9>------ Clean started: Project: quickfix, Configuration: Debug Win32 ------
+========== Clean: 9 succeeded, 0 failed, 0 skipped ==========
