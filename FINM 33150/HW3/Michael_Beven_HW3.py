@@ -103,19 +103,34 @@ for i in range(0,9):
   Ratios.loc[i] = ['df'+str(i),Sharpe,Sortino]
   
 # individual regressions
-Indiv = pd.DataFrame(columns=['ETF','SMB','HML','RF','Mkt-RF'])
+Indiv = pd.DataFrame(columns=['ETF','SMB','SMB Sharpe','SMB Sortino','HML','HML Sharpe','HML Sortino','RF','RF Sharpe','RF Sortino','Mkt-RF','Mkt-RF Sharpe','Mkt-RF Sortino'])
 for i in range(0,9):
   df = dfs['df'+str(i)]
-  SMB = OLS(df.Return,FF_data.SMB,missing='drop').fit().params['SMB']
-  HML = OLS(df.Return,FF_data.HML,missing='drop').fit().params['HML']
-  RF = OLS(df.Return,FF_data.RF,missing='drop').fit().params['RF']
-  MktRF = OLS(df.Return,FF_data['Mkt-RF'],missing='drop').fit().params['Mkt-RF']
-  Indiv.loc[i] = ['df'+str(i),SMB,HML,RF,MktRF]
+  SMB = OLS(df.Return,FF_data.SMB,missing='drop').fit()
+  SMB_p = SMB.params['SMB']
+  SMB_Sharpe = np.mean(SMB.resid)/np.sqrt(np.mean(np.power(SMB.resid,2)))
+  SMB_Sortino = np.mean(SMB.resid)/np.sqrt(np.mean(np.power(SMB.resid[SMB.resid>0],2)))
+  HML = OLS(df.Return,FF_data.HML,missing='drop').fit()
+  HML_p = HML.params['HML']
+  HML_Sharpe = np.mean(HML.resid)/np.sqrt(np.mean(np.power(HML.resid,2)))
+  HML_Sortino = np.mean(HML.resid)/np.sqrt(np.mean(np.power(HML.resid[HML.resid>0],2)))
+  RF = OLS(df.Return,FF_data.RF,missing='drop').fit()
+  RF_p = RF.params['RF']
+  RF_Sharpe = np.mean(RF.resid)/np.sqrt(np.mean(np.power(RF.resid,2)))
+  RF_Sortino = np.mean(RF.resid)/np.sqrt(np.mean(np.power(RF.resid[RF.resid>0],2)))
+  MktRF = OLS(df.Return,FF_data['Mkt-RF'],missing='drop').fit()
+  MktRF_p = MktRF.params['Mkt-RF']
+  MktRF_Sharpe = np.mean(MktRF.resid)/np.sqrt(np.mean(np.power(MktRF.resid,2)))
+  MktRF_Sortino = np.mean(MktRF.resid)/np.sqrt(np.mean(np.power(MktRF.resid[MktRF.resid>0],2)))
+  Indiv.loc[i] = ['df'+str(i),SMB_p,SMB_Sharpe,SMB_Sortino,HML_p,HML_Sharpe,HML_Sortino,RF_p,RF_Sharpe,RF_Sortino,MktRF_p,MktRF_Sharpe,MktRF_Sortino]
   
 # mutlvariate regressions
-Multi = pd.DataFrame(columns=['ETF','SMB','HML','RF','Mkt-RF'])
+Multi = pd.DataFrame(columns=['ETF','SMB','HML','RF','Mkt-RF','Sharpe','Sortino'])
 for i in range(0,9):
   df = dfs['df'+str(i)]
-  Reg = OLS(df.Return,FF_data,missing='drop').fit().params
-  Multi.loc[i] = ['df'+str(i),Reg['SMB'],Reg['HML'],Reg['RF'],Reg['Mkt-RF']]
+  Reg = OLS(df.Return,FF_data,missing='drop').fit()
+  Reg_p = Reg.params
+  Reg_Sharpe = np.mean(Reg.resid)/np.sqrt(np.mean(np.power(Reg.resid,2)))
+  Reg_Sortino = np.mean(Reg.resid)/np.sqrt(np.mean(np.power(Reg.resid[Reg.resid>0],2)))
+  Multi.loc[i] = ['df'+str(i),Reg_p['SMB'],Reg_p['HML'],Reg_p['RF'],Reg_p['Mkt-RF'],Reg_Sharpe,Reg_Sortino]
   
