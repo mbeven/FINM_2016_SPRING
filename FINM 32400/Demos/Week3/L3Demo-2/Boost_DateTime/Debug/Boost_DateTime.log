@@ -1,0 +1,10 @@
+﻿Build started 4/9/2016 7:01:47 PM.
+     1>Project "C:\Users\chanaka\Desktop\2015-16\Computing3\Week3\L3Demo\Boost_DateTime\Boost_DateTime.vcxproj" on node 2 (Build target(s)).
+     1>Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\chanaka\Desktop\2015-16\Computing3\Week3\L3Demo\Debug\Boost_DateTime.exe" /INCREMENTAL /NOLOGO /LIBPATH:"C:\Users\chanaka\Desktop\2015-16\Computing3\boost_1_59_0\lib64-msvc-14.0" kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /Debug /PDB:"C:\Users\chanaka\Desktop\2015-16\Computing3\Week3\L3Demo\Debug\Boost_DateTime.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\chanaka\Desktop\2015-16\Computing3\Week3\L3Demo\Debug\Boost_DateTime.lib" /MACHINE:X86 Debug\Source.obj
+     1>libboost_date_time-vc140-mt-gd-1_59.lib(greg_month.obj) : fatal error LNK1112: module machine type 'x64' conflicts with target machine type 'X86'
+     1>Done Building Project "C:\Users\chanaka\Desktop\2015-16\Computing3\Week3\L3Demo\Boost_DateTime\Boost_DateTime.vcxproj" (Build target(s)) -- FAILED.
+
+Build FAILED.
+
+Time Elapsed 00:00:00.20

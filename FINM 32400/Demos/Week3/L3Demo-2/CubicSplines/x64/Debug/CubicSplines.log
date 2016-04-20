@@ -1,0 +1,11 @@
+﻿Build started 4/11/2016 2:25:32 PM.
+     1>Project "C:\Users\chanaka\Desktop\2015-16\Computing3\Week3\L3Demo\CubicSplines\CubicSplines.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"x64\Debug\\" /Fd"x64\Debug\vc140.pdb" /Gd /TP /errorReport:prompt Source.cpp
+         Source.cpp
+     1>c:\users\chanaka\desktop\2015-16\computing3\week3\l3demo\cubicsplines\source.cpp(4): fatal error C1083: Cannot open include file: 'gsl/gsl_errno.h': No such file or directory
+     1>Done Building Project "C:\Users\chanaka\Desktop\2015-16\Computing3\Week3\L3Demo\CubicSplines\CubicSplines.vcxproj" (Build target(s)) -- FAILED.
+
+Build FAILED.
+
+Time Elapsed 00:00:00.35
