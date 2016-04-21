@@ -112,26 +112,30 @@ Ratios = Ratios.set_index(sims.index)
 print(Ratios)
   
 # individual regressions
-Indiv = pd.DataFrame(columns=['SMB','SMB Sharpe','SMB Sortino','HML','HML Sharpe','HML Sortino','RF','RF Sharpe','RF Sortino','Mkt-RF','Mkt-RF Sharpe','Mkt-RF Sortino'])
+Indiv = pd.DataFrame(columns=['SMB','SMB R^2','SMB Sharpe','SMB Sortino','HML','HML R^2','HML Sharpe','HML Sortino','RF','RF R^2','RF Sharpe','RF Sortino','Mkt-RF','Mkt-RF R^2','Mkt-RF Sharpe','Mkt-RF Sortino'])
 for i in range(0,len(sims)):
   df = dfs['df'+str(i)]
   SMB = OLS(df.Return,FF_data.SMB+0,missing='drop').fit()
   SMB_p = SMB.params['SMB']
+  SMB_R2 = SMB.rsquared
   SMB_Sharpe = SMB.resid.mean()/np.sqrt(np.mean(np.power(SMB.resid,2)))
   SMB_Sortino = SMB.resid.mean()/np.sqrt(np.mean(np.power(SMB.resid[SMB.resid<0],2)))
   HML = OLS(df.Return,FF_data.HML+0,missing='drop').fit()
   HML_p = HML.params['HML']
+  HML_R2 = HML.rsquared
   HML_Sharpe = HML.resid.mean()/np.sqrt(np.mean(np.power(HML.resid,2)))
   HML_Sortino = HML.resid.mean()/np.sqrt(np.mean(np.power(HML.resid[HML.resid<0],2)))
   RF = OLS(df.Return,FF_data.RF+0,missing='drop').fit()
   RF_p = RF.params['RF']
+  RF_R2 = RF.rsquared
   RF_Sharpe = RF.resid.mean()/np.sqrt(np.mean(np.power(RF.resid,2)))
   RF_Sortino = RF.resid.mean()/np.sqrt(np.mean(np.power(RF.resid[RF.resid<0],2)))
   MktRF = OLS(df.Return,FF_data['Mkt-RF']+0,missing='drop').fit()
   MktRF_p = MktRF.params['Mkt-RF']
+  MktRF_R2 = MktRF.rsquared
   MktRF_Sharpe = MktRF.resid.mean()/np.sqrt(np.mean(np.power(MktRF.resid,2)))
   MktRF_Sortino = MktRF.resid.mean()/np.sqrt(np.mean(np.power(MktRF.resid[MktRF.resid<0],2)))
-  Indiv.loc[i] = [SMB_p,SMB_Sharpe,SMB_Sortino,HML_p,HML_Sharpe,HML_Sortino,RF_p,RF_Sharpe,RF_Sortino,MktRF_p,MktRF_Sharpe,MktRF_Sortino]
+  Indiv.loc[i] = [SMB_p,SMB_R2,SMB_Sharpe,SMB_Sortino,HML_p,HML_R2,HML_Sharpe,HML_Sortino,RF_p,RF_R2,RF_Sharpe,RF_Sortino,MktRF_p,MktRF_R2,MktRF_Sharpe,MktRF_Sortino]
 Indiv = Indiv.set_index(sims.index)
 print(Indiv)
 
@@ -148,19 +152,20 @@ Improv_Indiv['Mkt-RF Sortino'] = Indiv['Mkt-RF Sortino'] - Ratios['Sortino']
 Improv_Indiv = Improv_Indiv.set_index(sims.index)
 print(Improv_Indiv)
 
-# multivariate regressions
-Multi = pd.DataFrame(columns=['ETF','SMB','HML','RF','Mkt-RF','Sharpe','Sortino'])
+# multivariate regression
+Multi = pd.DataFrame(columns=['ETF','SMB','HML','RF','Mkt-RF','R^2','Sharpe','Sortino'])
 for i in range(0,len(sims)):
   df = dfs['df'+str(i)]
   Reg = OLS(df.Return,FF_data+0,missing='drop').fit()
   Reg_p = Reg.params
+  Reg_R2 = Reg.rsquared
   Reg_Sharpe = Reg.resid.mean()/np.sqrt(np.mean(np.power(Reg.resid,2)))
   Reg_Sortino = Reg.resid.mean()/np.sqrt(np.mean(np.power(Reg.resid[Reg.resid<0],2)))
-  Multi.loc[i] = ['df'+str(i),Reg_p['SMB'],Reg_p['HML'],Reg_p['RF'],Reg_p['Mkt-RF'],Reg_Sharpe,Reg_Sortino]
+  Multi.loc[i] = ['df'+str(i),Reg_p['SMB'],Reg_p['HML'],Reg_p['RF'],Reg_p['Mkt-RF'],Reg_R2,Reg_Sharpe,Reg_Sortino]
 Multi = Multi.set_index(sims.index)
 print(Multi)  
 
-# improvement multivariate regressions
+# improvement multivariate regression
 Improv_Multi = pd.DataFrame()
 Improv_Multi['Sharpe'] = Multi['Sharpe'] - Ratios['Sharpe']
 Improv_Multi['Sortino'] = Multi['Sortino'] - Ratios['Sortino']
@@ -172,7 +177,7 @@ x_ax = np.array([0,1,2,3,4,5,6,7,8,9]) # string axis
 
 plt.figure(1,figsize=(12,6))
 plt.xticks(x_ax,sims.index)
-plt.title('ETF Performance')
+plt.title('ETF Strategy Return Performance')
 plt.ylabel('Sharpe/Sortino Ratios')
 plt.plot(x_ax,Ratios.Sharpe,color='black')
 plt.scatter(x_ax,Ratios.Sharpe,color='black')
