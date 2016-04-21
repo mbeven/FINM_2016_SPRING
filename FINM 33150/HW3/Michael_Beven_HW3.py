@@ -13,6 +13,8 @@ import Quandl
 import statsmodels.api as sm
 from statsmodels.regression.linear_model import OLS
 import matplotlib.pyplot as plt
+import warnings
+warnings.filterwarnings('ignore')
 
 # set global variables
 auth = "v21snmSix9KyXBWc1RkF"
@@ -96,15 +98,15 @@ for i in range(0,len(sims)):
   dfs['df'+str(i)] = strat(sims.ix[i,'M'],sims.ix[i,'g'],sims.ix[i,'j'],sims.ix[i,'X_code'],sims.ix[i,'Y_code'],sims.ix[i,'X_close'],sims.ix[i,'X_volume'],sims.ix[i,'Y_close'],sims.ix[i,'Y_volume'])
 
 # FF data (annualised)
-FF_data = Quandl.get('KFRENCH/FACTORS_D',authtoken=auth,trim_start=trade_begin,trim_end=end_date,returns="pandas")*100/252
+FF_data = Quandl.get('KFRENCH/FACTORS_D',authtoken=auth,trim_start=trade_begin,trim_end=end_date,returns="pandas")*252/100
 print(FF_data.head())
 
 # ratios
 Ratios = pd.DataFrame(columns=['Sharpe','Sortino'])
 for i in range(0,len(sims)):
   df = dfs['df'+str(i)]
-  Sharpe = (df.Return - FF_data.RF).mean()/(df.Return - FF_data.RF).std()
-  Sortino = (df.Return - FF_data.RF).mean()/np.sqrt(np.mean(np.power(df.Return[df.Return < FF_data['RF']] - FF_data['RF'][df.Return < FF_data['RF']],2)))
+  Sharpe = (df.Return - FF_data.RF).mean()/np.sqrt(np.mean(np.power(df.Return - FF_data.RF,2)))
+  Sortino = (df.Return - FF_data.RF).mean()/np.sqrt(np.mean(np.power(df.Return[df.Return < FF_data.RF] - FF_data.RF[df.Return < FF_data.RF],2)))
   Ratios.loc[i] = [Sharpe,Sortino]
 Ratios = Ratios.set_index(sims.index)
 print(Ratios)
@@ -113,19 +115,19 @@ print(Ratios)
 Indiv = pd.DataFrame(columns=['SMB','SMB Sharpe','SMB Sortino','HML','HML Sharpe','HML Sortino','RF','RF Sharpe','RF Sortino','Mkt-RF','Mkt-RF Sharpe','Mkt-RF Sortino'])
 for i in range(0,len(sims)):
   df = dfs['df'+str(i)]
-  SMB = OLS(df.Return,FF_data.SMB,missing='drop').fit()
+  SMB = OLS(df.Return,FF_data.SMB+0,missing='drop').fit()
   SMB_p = SMB.params['SMB']
   SMB_Sharpe = SMB.resid.mean()/np.sqrt(np.mean(np.power(SMB.resid,2)))
   SMB_Sortino = SMB.resid.mean()/np.sqrt(np.mean(np.power(SMB.resid[SMB.resid<0],2)))
-  HML = OLS(df.Return,FF_data.HML,missing='drop').fit()
+  HML = OLS(df.Return,FF_data.HML+0,missing='drop').fit()
   HML_p = HML.params['HML']
   HML_Sharpe = HML.resid.mean()/np.sqrt(np.mean(np.power(HML.resid,2)))
   HML_Sortino = HML.resid.mean()/np.sqrt(np.mean(np.power(HML.resid[HML.resid<0],2)))
-  RF = OLS(df.Return,FF_data.RF,missing='drop').fit()
+  RF = OLS(df.Return,FF_data.RF+0,missing='drop').fit()
   RF_p = RF.params['RF']
   RF_Sharpe = RF.resid.mean()/np.sqrt(np.mean(np.power(RF.resid,2)))
   RF_Sortino = RF.resid.mean()/np.sqrt(np.mean(np.power(RF.resid[RF.resid<0],2)))
-  MktRF = OLS(df.Return,FF_data['Mkt-RF'],missing='drop').fit()
+  MktRF = OLS(df.Return,FF_data['Mkt-RF']+0,missing='drop').fit()
   MktRF_p = MktRF.params['Mkt-RF']
   MktRF_Sharpe = MktRF.resid.mean()/np.sqrt(np.mean(np.power(MktRF.resid,2)))
   MktRF_Sortino = MktRF.resid.mean()/np.sqrt(np.mean(np.power(MktRF.resid[MktRF.resid<0],2)))
@@ -150,7 +152,7 @@ print(Improv_Indiv)
 Multi = pd.DataFrame(columns=['ETF','SMB','HML','RF','Mkt-RF','Sharpe','Sortino'])
 for i in range(0,len(sims)):
   df = dfs['df'+str(i)]
-  Reg = OLS(df.Return,FF_data,missing='drop').fit()
+  Reg = OLS(df.Return,FF_data+0,missing='drop').fit()
   Reg_p = Reg.params
   Reg_Sharpe = Reg.resid.mean()/np.sqrt(np.mean(np.power(Reg.resid,2)))
   Reg_Sortino = Reg.resid.mean()/np.sqrt(np.mean(np.power(Reg.resid[Reg.resid<0],2)))
@@ -170,7 +172,7 @@ x_ax = np.array([0,1,2,3,4,5,6,7,8,9]) # string axis
 
 plt.figure(1,figsize=(12,6))
 plt.xticks(x_ax,sims.index)
-plt.title('Ranking of ETF Performance by Sharpe Ratio')
+plt.title('ETF Performance')
 plt.ylabel('Sharpe/Sortino Ratios')
 plt.plot(x_ax,Ratios.Sharpe,color='black')
 plt.scatter(x_ax,Ratios.Sharpe,color='black')
@@ -178,13 +180,13 @@ plt.plot(x_ax,Ratios.Sortino,color='red')
 plt.scatter(x_ax,Ratios.Sortino,color='red')
 plt.legend(['Sharpe','Sortino'],loc='upper left')
 
-fig = plt.figure(4,figsize=(20,2))
+fig = plt.figure(2,figsize=(20,8))
 plt.subplots_adjust(hspace=0.5)
 for i in range(0,len(sims)):
-  ax = fig.add_subplot(1,10,i+1)
-  ax.yaxis.set_visible(False)
-  ax.xaxis.set_visible(False)
+  ax = fig.add_subplot(2,5,i+1)
   sm.graphics.qqplot(dfs['df'+str(i)].Return,ax=ax)
+  plt.axvline(x=0)
+  plt.axhline(y=0)
   plt.title('ETF{}'.format(i))
   
 plt.figure(3,figsize=(18,9))
