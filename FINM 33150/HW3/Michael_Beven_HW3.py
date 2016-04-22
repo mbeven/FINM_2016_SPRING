@@ -17,7 +17,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 # set global variables
-auth = "v21snmSix9KyXBWc1RkF"
+auth = ""
 start_date = "2013-12-02"
 trade_begin = "2014-01-01"
 end_date = "2015-12-31"

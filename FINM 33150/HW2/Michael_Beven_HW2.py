@@ -39,7 +39,7 @@ def strat(M,g,j,s,X_code,Y_code,X_close,X_volume,Y_close,Y_volume):
   ############################################################################ 
   
   # grab data using Quandl
-  raw_data = Quandl.get(list((X_code,Y_code)),authtoken="v21snmSix9KyXBWc1RkF",
+  raw_data = Quandl.get(list((X_code,Y_code)),authtoken="",
       trim_start="2013-12-02",trim_end="2015-12-31",returns="pandas")
 
   # take a subset of columns of the close data and volume (volume needed for daily

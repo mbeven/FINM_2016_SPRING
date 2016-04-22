@@ -20,7 +20,7 @@ QLoad <- R.cache::addMemoization(Quandl::Quandl)
 
 # load data
 if (reload.data == TRUE) {
-  Quandl.api_key('v21snmSix9KyXBWc1RkF')
+  Quandl.api_key('')
   cat('Data Reload/n')
   msft.raw <- QLoad('YAHOO/MSFT')
   bac.raw <- QLoad('WIKI/BAC')
