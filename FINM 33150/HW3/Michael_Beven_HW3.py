@@ -10,6 +10,7 @@
 import pandas as pd
 import numpy as np
 import Quandl
+import keyring
 import statsmodels.api as sm
 from statsmodels.regression.linear_model import OLS
 import matplotlib.pyplot as plt
@@ -17,7 +18,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 # set global variables
-auth = ""
+auth = keyring.get_password('Quandl','mbeven')
 start_date = "2013-12-02"
 trade_begin = "2014-01-01"
 end_date = "2015-12-31"
