@@ -19,13 +19,13 @@ std::mutex counterA_mutex;
 std::mutex counterB_mutex;
 */
 
-std::mutex counter_mutex;
+std::mutex counter_mutex; // can use one lock
 
 
 
 void IncrementA()
 {
-	std::lock_guard<std::mutex> lock(counter_mutex);
+	std::lock_guard<std::mutex> lock(counter_mutex); // if same lock used in B, only one can run at a time because it is the same lock
 
 	//std::lock_guard<std::mutex> lockA(counterA_mutex); 
 	for (int i = 0; i < 1000000; i++)

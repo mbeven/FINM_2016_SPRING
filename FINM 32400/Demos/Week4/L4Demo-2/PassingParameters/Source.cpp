@@ -27,7 +27,7 @@ int main()
 {
 	string msg = "Hello, World";
 	
-	thread t(DisplayGreeting, std::ref(msg));
+	thread t(DisplayGreeting, std::ref(msg)); //ref passes by reference
 	t.join();
 
 	cout << msg << endl;

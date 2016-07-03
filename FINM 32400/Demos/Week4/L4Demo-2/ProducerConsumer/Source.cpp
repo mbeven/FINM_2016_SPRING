@@ -14,11 +14,11 @@ public:
 		: capacity_(capacity) 
 	{}
 
-    void push(T data)
+    void push(T data) //push operation to add an item
 	{
-        std::unique_lock<std::mutex> lock(buffer_lock);
+        std::unique_lock<std::mutex> lock(buffer_lock); //buffer is a shared resource
 
-        not_full.wait(lock, [this]()
+        not_full.wait(lock, [this]() //see whether it is not full.  if full, wait.. otherwise add item
 			{ 
 				return buffer_.size() != capacity_; //check to see if buffer is not full 
 			});

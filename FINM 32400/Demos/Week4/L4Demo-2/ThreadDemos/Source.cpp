@@ -68,7 +68,9 @@ int counter_demo()
 int locking_demo()
 {
 	unsigned long count = 0;
-	std::mutex count_mutex;
+	std::mutex count_mutex; //mutual exclusion
+
+
 
 	int numThreads = 8;
 	vector<thread> threads(numThreads);
@@ -79,10 +81,10 @@ int locking_demo()
 		{
 			for (int i = 0; i<100000; ++i)
 			{
-				count_mutex.lock();
+				count_mutex.lock(); // thread gets lock
 				count++;
-
-				count_mutex.unlock();
+				// always use lock guard.  don't use locks directly
+				count_mutex.unlock(); // unlock.  if not unlocked we will get a deadlock
 			}
 		});
 	}
