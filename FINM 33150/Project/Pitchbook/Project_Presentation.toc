@@ -1,6 +1,0 @@
-\beamer@endinputifotherversion {3.36pt}
-\select@language {english}
-\beamer@sectionintoc {1}{Strategy}{3}{0}{1}
-\beamer@sectionintoc {2}{Construction}{8}{0}{2}
-\beamer@sectionintoc {3}{Backtesting}{21}{0}{3}
-\beamer@sectionintoc {4}{Risk Management}{23}{0}{4}

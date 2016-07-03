@@ -1,7 +1,0 @@
-\frametitle{Implications of Empirical Exploration}
-Capital set at \$30 yields a profit over 13.3\%:
-  \begin{figure}[t]
-    \centering
-    \vspace{0.45cm}\includegraphics[scale=0.4]{Images/cum_return.pdf}
-    \caption{}
-  \end{figure}
